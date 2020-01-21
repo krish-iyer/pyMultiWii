@@ -128,7 +128,7 @@ class MultiWii:
       break;
 
     """
-    def sendCMDreceiveATT(self, data_length, code, data):
+        def sendCMDreceiveATT(self, data_length, code, data):
         checksum = 0
         total_data = ['$'.encode('utf-8'), 'M'.encode('utf-8'), '<'.encode('utf-8'), data_length, code] + data
         for i in struct.pack('<2B%dH' % len(data), *total_data[3:len(total_data)]):
@@ -177,8 +177,12 @@ class MultiWii:
         timer = 0
         start = time.time()
         while timer < 0.5:
-            data = [1500,1500,2000,1000]
-            self.sendCMD(8,MultiWii.SET_RAW_RC,data)
+            data = [1500,1500,1000,1500,0,0,0,0] #roll/pitch/throttle/yaw/Aux1/2/3/4
+            for i in range(len(data)):
+                binary = '{0:016b}'.format(data[i])
+                data.append(int(binary[8:], 2))
+                data.append(int(binary[:8], 2))
+            self.sendCMD(16,MultiWii.SET_RAW_RC,data,'16B')
             time.sleep(0.05)
             timer = timer + (time.time() - start)
             start =  time.time()
